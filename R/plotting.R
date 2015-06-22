@@ -159,7 +159,7 @@ plotClonalFrequency <- function(dataIn, chr = NULL,
             }
             
             if (!is.null(geneAnnot)) {
-                plotGeneAnnotation(geneAnnot, i)
+                plotGeneAnnotation(geneAnnot, i, ...)
             }
         }
     } else {
@@ -199,12 +199,20 @@ plotClonalFrequency <- function(dataIn, chr = NULL,
 
 
 
-# data is the output format of TITAN (*loh.txt)
-# alphaVal = [0,1] geneAnnot is a dataframe with 4
-# columns: geneSymbol, chr, start, stop spacing is
-# the distance between each track
+#' Plot Copy Number LRR by the Chromosome 
+#' 
+#' Data is the output format of TITAN (*loh.txt) alphaVal = [0,1] geneAnnot is
+#' a dataframe with 4 columns: geneSymbol, chr, start, stop spacing is
+#' the distance between each track. 
+#'
+#' If specifying geneAnnot, the margins of the plot need to increased 
+#'
+#' @param textRotation Set the text rotation of the gene labels from geneAnnot
+#' @param spacing Number value indicating the top margin space
 plotCNlogRByChr <- function(dataIn, chr = NULL, geneAnnot = NULL, 
-    ploidy = NULL, spacing = 4, alphaVal = 1, xlim = NULL, ...) {
+                            ploidy = NULL, spacing = c(4, 8, 2, 2), 
+                            alphaVal = 1, xlim = NULL, textRotation = -90,
+                            geneAnnotSize = 0.75, ...) {
     # color coding
     alphaVal <- ceiling(alphaVal * 255)
     class(alphaVal) = "hexmode"
@@ -231,7 +239,7 @@ plotCNlogRByChr <- function(dataIn, chr = NULL, geneAnnot = NULL,
                 "OUT", ]
             # plot the data if (outfile!=''){
             # pdf(outfile,width=10,height=6) }
-            par(mar = c(spacing, 8, 2, 2))
+            par(mar = spacing)
             # par(xpd=NA)
             if (missing(xlim)) {
                 xlim <- as.numeric(c(1, dataByChr[nrow(dataByChr), 
@@ -247,7 +255,7 @@ plotCNlogRByChr <- function(dataIn, chr = NULL, geneAnnot = NULL,
                 col = "grey", lwd = 0.75)
             
             if (!is.null(geneAnnot)) {
-                plotGeneAnnotation(geneAnnot, i)
+                plotGeneAnnotation(geneAnnot, i, textRotation, geneAnnotSize)
             }
         }
     } else {
@@ -450,11 +458,12 @@ plotSegmentMedians <- function(dataIn, resultType = "LogRatio", chr = NULL,
     }
 }
 
-plotGeneAnnotation <- function(geneAnnot, chr = 1, ...) {
-    colnames(geneAnnot) <- c("Gene", "Chr", "Start", 
-        "Stop")
-    geneAnnot <- geneAnnot[geneAnnot[, "Chr"] == as.character(chr), 
-        ]
+#' Add gene labels
+#'
+#' @param textRotation 
+plotGeneAnnotation <- function(geneAnnot, chr, textRotation, geneAnnotSize) {
+    colnames(geneAnnot) <- c("Gene", "Chr", "Start", "Stop")
+    geneAnnot <- geneAnnot[geneAnnot[, "Chr"] == as.character(chr), ]
     if (nrow(geneAnnot) != 0) {
         for (g in 1:dim(geneAnnot)[1]) {
             # print(geneAnnot[g,'Gene'])
@@ -468,8 +477,9 @@ plotGeneAnnotation <- function(geneAnnot, chr = 1, ...) {
             # if (atP < dataByChr[1,2]){ atP <- dataByChr[1,2]
             # }else if (atP > dataByChr[dim(dataByChr)[1],2]){
             # atP <- dataByChr[dim(dataByChr)[1],2] }
-            mtext(geneAnnot[g, "Gene"], side = 3, line = 0, 
-                at = atP, ...)
+            text(x = atP, y = par("usr")[4] + 0.25, srt = textRotation, 
+                 adj = 1, labels = geneAnnot[g, "Gene"], cex = geneAnnotSize, 
+                 xpd = TRUE)
         }
     }
 }
