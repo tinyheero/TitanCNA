@@ -159,7 +159,7 @@ plotClonalFrequency <- function(dataIn, chr = NULL,
             }
             
             if (!is.null(geneAnnot)) {
-                plotGeneAnnotation(geneAnnot, i, ...)
+                plotGeneAnnotation(geneAnnot, i)
             }
         }
     } else {
